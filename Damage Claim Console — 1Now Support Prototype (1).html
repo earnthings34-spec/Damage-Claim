@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Damage Claim Console — 1Now Support Prototype</title>
+<style>
+:root{--bg:#f4f5f7;--panel:#fff;--field:#f0f1f4;--line:#d9dce3;--text:#171a21;--muted:#586072;--accent:#e8912d;--onaccent:#171a21;--ok:#1f8a4c;--warn:#b7791f;--bad:#c0392b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13171b;--panel:#1d2227;--field:#262c33;--line:#333b44;--text:#eceef1;--muted:#98a1ad;--accent:#f4a53c;--ok:#4cc27d;--warn:#e5b04a;--bad:#ef7a6c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#13171b;--panel:#1d2227;--field:#262c33;--line:#333b44;--text:#eceef1;--muted:#98a1ad;--accent:#f4a53c;--ok:#4cc27d;--warn:#e5b04a;--bad:#ef7a6c;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:28px 20px 48px}
+.kicker{color:var(--muted);font-size:14px;margin:0}
+h1{font-size:2rem;margin:4px 0 8px}
+.intro{color:var(--muted);max-width:60ch;margin:0 0 24px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:760px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px}
+h2{font-size:1.1rem;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 14px;font-size:.95rem}
+label{display:block;font-size:.85rem;color:var(--muted);margin:12px 0 4px}
+input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--field);color:var(--text);font:inherit}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.row{grid-template-columns:1fr}}
+.go{width:100%;margin-top:18px;padding:12px;border:0;border-radius:8px;background:var(--accent);color:var(--onaccent);font:inherit;font-weight:700;cursor:pointer}
+.ex{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+.ex span{font-size:.85rem;color:var(--muted)}
+.ex button{padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--text);font:inherit;font-size:.85rem;cursor:pointer}
+.badge{display:inline-block;padding:4px 12px;border-radius:999px;font-weight:700;font-size:.9rem;border:1px solid currentColor}
+.ready{color:var(--ok)}.needs{color:var(--warn)}.esc{color:var(--bad)}
+.act{display:block;width:100%;margin:6px 0 4px;padding:12px 16px;border:0;border-radius:8px;font:inherit;font-weight:700;color:var(--bg);cursor:pointer}
+.act.ready{background:var(--ok)}.act.needs{background:var(--warn)}.act.esc{background:var(--bad)}
+.act:disabled{opacity:.6;cursor:default}
+.resp{margin:12px 0 4px;padding:12px 14px;border-radius:8px;border:2px solid currentColor}
+.resp p{margin:4px 0 0;color:var(--text)}
+.msg{background:var(--field);border-left:3px solid var(--accent);border-radius:6px;padding:12px 14px;margin:8px 0 14px}
+h3{font-size:.95rem;margin:16px 0 4px}
+ul{margin:0;padding-left:20px}
+.err{color:var(--bad);margin:10px 0 0;min-height:1.4em;font-size:.9rem}
+.log{margin-top:20px}
+.log li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--line);list-style:none}
+.log ul{padding:0}
+.empty{color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<p class="kicker">1Now — Client Support Prototype</p>
+<h1>Damage Claim Console</h1>
+<p class="intro">For the support agent, not the operator. Use it live when an operator reports damage after a car is returned. Enter what they tell you; it decides the next step and gives you the words to say.</p>
+<div class="grid">
+<section class="panel" aria-labelledby="h-in">
+<h2 id="h-in">Agent view — operator reporting damage</h2>
+<p class="sub">Fill this in as the operator talks, then check the claim.</p>
+<label for="ref">Booking reference</label>
+<input id="ref" placeholder="e.g. BK-2041">
+<div class="row">
+<div><label for="dmg">Type of damage</label>
+<select id="dmg"><option value="">Select</option><option>Scratch or dent</option><option>Broken glass</option><option>Interior damage</option><option>Mechanical or accident</option></select></div>
+<div><label for="sev">How serious?</label>
+<select id="sev"><option value="">Select</option><option value="cosmetic">Cosmetic (still drivable)</option><option value="moderate">Moderate (needs repair soon)</option><option value="serious">Serious (undrivable or accident)</option></select></div>
+</div>
+<div class="row">
+<div><label for="photos">Photos received?</label>
+<select id="photos"><option value="">Select</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+<div><label for="cover">Deposit or insurance on file?</label>
+<select id="cover"><option value="">Select</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+</div>
+<div class="row">
+<div><label for="days">Reported after return</label>
+<select id="days"><option value="">Select</option><option value="fast">Within 48 hours</option><option value="mid">3 to 7 days</option><option value="late">More than 7 days</option></select></div>
+<div><label for="dispute">Renter disputes it?</label>
+<select id="dispute"><option value="">Select</option><option value="no">No</option><option value="yes">Yes</option></select></div>
+</div>
+<button class="go" id="check">Check claim and get next step</button>
+<p class="err" id="err" role="alert"></p>
+<div class="ex"><span>Demo examples:</span>
+<button type="button" data-ex="a">Complete claim</button>
+<button type="button" data-ex="b">Missing photos</button>
+<button type="button" data-ex="c">Serious and disputed</button></div>
+</section>
+<section class="panel" aria-labelledby="h-out" aria-live="polite">
+<h2 id="h-out">What to do and say</h2>
+<div id="out"><p class="empty">Enter the claim details and check them. The outcome, the reason, and what to tell the operator appear here.</p></div>
+</section>
+</div>
+<section class="panel log">
+<h2>Agent’s activity log — claims handled today</h2>
+<div id="log"><p class="empty">No claims checked yet.</p></div>
+</section>
+</main>
+<script>
+var F=["ref","dmg","sev","photos","cover","days","dispute"],log=[];
+var EX={a:{ref:"BK-2041",dmg:"Scratch or dent",sev:"cosmetic",photos:"yes",cover:"yes",days:"fast",dispute:"no"},
+b:{ref:"BK-2087",dmg:"Broken glass",sev:"moderate",photos:"no",cover:"no",days:"fast",dispute:"no"},
+c:{ref:"BK-2112",dmg:"Mechanical or accident",sev:"serious",photos:"yes",cover:"yes",days:"mid",dispute:"yes"}};
+function g(i){return document.getElementById(i)}
+document.querySelectorAll("[data-ex]").forEach(function(b){b.onclick=function(){var e=EX[b.dataset.ex];F.forEach(function(k){g(k).value=e[k]});g("err").textContent=""}});
+function decide(v){
+ var esc=[],miss=[];
+ if(v.sev==="serious")esc.push("the damage is serious");
+ if(v.dispute==="yes")esc.push("the operator and renter disagree about what happened");
+ if(v.days==="late")esc.push("it was reported more than 7 days after the return");
+ if(esc.length)return{k:"esc",label:"Escalate to claims lead",btn:"Escalate to claims lead",done:"Escalated",doneTitle:"Claim escalated",doneText:"sent to the claims lead. The operator was told to hold off on repairs and will be contacted directly.",doneLabel:"Escalated",why:esc,
+  msg:"Thanks for reporting this on booking "+v.ref+". Because "+esc.join(" and ")+", I’m passing it to our claims lead, who will contact you directly. Please hold off on any repairs until you hear from them.",
+  next:["Hand the booking to the claims lead with these details","Tell the operator not to repair or settle yet","Log it as escalated"]};
+ if(v.photos==="no")miss.push("clear photos of the damage");
+ if(v.cover==="no")miss.push("confirmation of what deposit or insurance covers it");
+ if(miss.length)return{k:"needs",label:"Needs evidence",btn:"Send evidence request",done:"Request sent",doneTitle:"Evidence request sent",doneText:"the operator was asked for the missing items. The claim stays open until they reply.",doneLabel:"Evidence requested",why:miss.map(function(m){return"Missing: "+m}),
+  msg:"Thanks for reporting the damage on booking "+v.ref+". To file the claim we still need "+miss.join(" and ")+". Send that over and we’ll file it right away.",
+  next:["Ask only for the missing items, nothing else","Keep the claim open until they send it","Check back if nothing arrives in 2 days"]};
+ return{k:"ready",label:"Ready to file",btn:"File the claim",done:"Claim filed",doneTitle:"Claim filed",doneText:"the claim was submitted and the operator received a confirmation message.",doneLabel:"Filed",why:["Photos received, coverage on file, reported in time, no dispute"],
+  msg:"Thanks, we have everything we need for the "+v.dmg.toLowerCase()+" claim on booking "+v.ref+". We’ll file it now and confirm once it’s submitted.",
+  next:["File the claim","Send the operator the confirmation message","Log it as filed"]};
+}
+function list(a){var u=document.createElement("ul");a.forEach(function(t){var l=document.createElement("li");l.textContent=t;u.appendChild(l)});return u}
+g("check").onclick=function(){
+ var v={},ok=true;F.forEach(function(k){v[k]=g(k).value.trim();if(!v[k])ok=false});
+ if(!ok){g("err").textContent="Fill in every field first. The outcome depends on all of them.";return}
+ g("err").textContent="";
+ var r=decide(v),o=g("out");o.textContent="";
+ var rl=document.createElement("p");rl.className="sub";rl.textContent="Result: "+r.label;o.appendChild(rl);var b=document.createElement("button");b.type="button";b.className="act "+r.k;b.textContent=r.btn;o.appendChild(b);var resp=document.createElement("div");resp.setAttribute("aria-live","polite");o.appendChild(resp);
+ var h=document.createElement("h3");h.textContent="Why";o.appendChild(h);o.appendChild(list(r.why));
+ h=document.createElement("h3");h.textContent="Say this, or send it right after the call";o.appendChild(h);
+ var m=document.createElement("div");m.className="msg";m.textContent="“"+r.msg+"”";o.appendChild(m);
+ h=document.createElement("h3");h.textContent="Next steps for you";o.appendChild(h);o.appendChild(list(r.next));
+ b.onclick=function(){
+  b.disabled=true;b.textContent=r.done;resp.textContent="";
+  var p=document.createElement("div");p.className="resp "+r.k;
+  var t1=document.createElement("strong");t1.textContent=r.doneTitle;p.appendChild(t1);
+  var t2=document.createElement("p");t2.textContent="Booking "+v.ref+": "+r.doneText;p.appendChild(t2);resp.appendChild(p);
+  log.unshift({t:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),ref:v.ref,l:r.doneLabel,k:r.k});
+  renderLog();
+ };
+};
+function renderLog(){
+ var L=g("log");L.textContent="";var u=document.createElement("ul");
+ log.forEach(function(e){var li=document.createElement("li");var a=document.createElement("span");a.textContent=e.t+"  "+e.ref;var c=document.createElement("span");c.className=e.k;c.textContent=e.l;li.appendChild(a);li.appendChild(c);u.appendChild(li)});
+ L.appendChild(u);
+}
+</script>
+</body>
+</html>
